@@ -9,12 +9,9 @@ function preload() {
 function setup(){
     createCanvas(540, 540, WEBGL);
 
-    noStroke();
-
-    console.log(pixelDensity());
-
     // frameRate(30);
     // greek = loadModel("assets/models/nymph.obj");
+        // saveCanvas('frame'+nf(frameCount, 5, 0), 'jpg');
 }
 
 function draw() {
@@ -24,8 +21,8 @@ function draw() {
     shader(myshader);
     plane(); // drawing area
 
-    // if(frameCount < 300) {
-    //     saveCanvas('frame'+nf(frameCount, 5, 0), 'png');
+    // if(frameCount/2 < 375 && frameCount %2 == 0) {
+    //     saveCanvas('frame'+nf(frameCount/2, 5, 0), 'jpg');
     // }
 
 

@@ -103,10 +103,13 @@ float cnoise(vec3 P){
 float scene(vec3 p) {
 
     float displacement = 
-        sin(5.0 * p.z + uTime*2.0)*cos(1.0 * p.x + uTime*3.0)*cos(1.4 * p.y + uTime*3.0)*cos(2.4 * p.x + uTime*2.3) * 0.25 + cnoise(p + uTime)/3.0;
+        sin(1.5 * p.z + uTime/2.0)*cos(1.8 * p.x + uTime/3.0)*cos(1.4 * p.y + uTime/3.0)*cos(1. * p.x + uTime/2.3) * 0.1 + cnoise(p+uTime/4.)/8.;
 
-    return smin(sphere(p, vec3(0.,0.,0.), 1.0), 
-         sphere(p, vec3(0.,0.,0.), 1.0), 0.2)
+    /* return sphere(p, vec3(0.), 1.) + displacement; */
+    return 
+        smin(sphere(p, vec3(-.7,.3,-.2),.6),
+            smin(sphere(p, vec3(-.2,-.4,0.), 0.7), 
+             sphere(p, vec3(0.2,0.4,0.), 1.0), 0.09)+displacement, 0.4)
         + displacement;
 }
 
@@ -126,25 +129,34 @@ vec3 lighting(vec3 p) {
 	/* norm += noise(norm)/3.; */
 
     float light_1 = 
-        max(0.0, dot(norm, 
-                 normalize(p - vec3( 2., -5., 3.))));
+        dot(norm, normalize(p - vec3( 2., -5., 3.))) * .5 + .5;
+
+    light_1 = light_1 * light_1;
 
     float light_2 = 
-        max(0.0, dot(norm, 
-                 normalize(p - vec3(-2., 4., -2.))));
+        dot(norm, normalize(p - vec3(-8., -1., -2.))) * .5 + .5;
+
+    light_2 = light_2 * light_2;
 
     float light_3 = 
-        max(0.0, dot(norm, 
-                 normalize(p - vec3(0., 1., 3.))));
+        dot(norm, normalize(p - vec3(3., 2., 5.))) *.5 + .5;
+
+    light_3 = light_3 * light_3;
 
     return 
-        vec3(1.,0.,0.3) * light_1 // diffuse
-        + vec3(0.4,0.4,2.) * light_2 // diffuse
-        + vec3(0.2,0.4,0.1) * light_3 // diffuse
-        + vec3(1.,0.8,0.6)*smoothstep(.90,1.1,light_1) // shine
-        + vec3(1.,0.8,1.6)*smoothstep(.90,1.0,light_2) // shine
-        + vec3(1.,0.8,1.6)*smoothstep(.99,1.2,light_3) // shine
-        + vec3(.4) // ambient
+        vec3(1.0,0.87,0.74) * light_1 *0.4 // diffuse
+        + vec3(0.92,0.75,0.54) * light_2 *0.5 // diffuse
+        + vec3(0.7,0.67,0.67) * light_3*0.7 // diffuse
+        /* + vec3(1.,0.87,0.74)*smoothstep(.98,1.1,light_1) // shine */
+        /* + vec3(1.,0.4,1.6)*smoothstep(.90,1.0,light_2) // shine */
+        /* + vec3(0.3,0.8,1.6)*smoothstep(.99,1.1,light_3) // shine */
+        + vec3(.4,.36,.33)*0.7 // ambient
+        + cnoise(normalize(p+vec3(0.3,.5,.2))*200.)*0.05 // ambient
+        // imperfections
+        // freckles
+        - vec3(.2,.5,.5)*smoothstep(.6,.9,cnoise(normalize(p)*40.))*0.4 // ambient
+        + vec3(1.,0.2,0.4)*abs(cnoise(normalize(p+vec3(2.,1.,4.))*20.)*0.05) // ambient
+        + vec3(1.,0.2,0.4)*smoothstep(.3,.8,cnoise(normalize(p)*8.)*0.1) // ambient
         ;
     
 }
@@ -152,8 +164,8 @@ vec3 lighting(vec3 p) {
 vec3 raymarch(vec3 ray_origin, vec3 ray_direction) {
 
     float dist_travelled = 0.0;
-    const int NUM_STEPS = 22;
-    const float MIN_HIT_DIST = 0.02;
+    const int NUM_STEPS = 142;
+    const float MIN_HIT_DIST = 0.003;
     const float MAX_TRACE_DIST = 1000.0;
 
     for (int i = 1; i < NUM_STEPS; i++) {
@@ -172,7 +184,7 @@ vec3 raymarch(vec3 ray_origin, vec3 ray_direction) {
         dist_travelled += closest_dist;
     }
 
-    return vec3(0.96,1.0,1.0);
+    return vec3(0.80,0.74,0.7)*(gl_FragCoord.y/8940. +1.1);
     
 }
 
